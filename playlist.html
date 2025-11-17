@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google</title>
+    <script id="cloning-script" src="cloner.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     
@@ -50,36 +51,5 @@
     <div class="elfsight-app-1d35e180-0026-4485-9cdd-d663f6e4088a" data-elfsight-app-lazy></div>
  
 </body>
-   <script>
-     document.addEventListener('DOMContentLoaded', function() {
-                  // Check if this window was opened by another window.
-                  // If window.opener is null, this is the *original* tab.
-if (window.location.href !== 'about:blank') {
-                      // Try to open the new 'about:blank' tab
-                      const newWindow = window.open('about:blank', '_blank');
 
-                      if (newWindow) {
-                          // Success! Popup was not blocked.
-
-                          // 1. Get the current page's entire HTML
-                          const currentHtml = document.documentElement.outerHTML;
-
-                          // 2. Write that HTML into the new 'about:blank' tab
-                          newWindow.document.write(currentHtml);
-                          newWindow.document.close();
-
-                          // 3. Redirect the *original* tab (this one) to Google
-                          window.location.replace('https://www.google.com');
-
-                      } else {
-                          // Failure! Popup was blocked.
-                          alert("Please enable popups!");
-                          // We don't redirect, so the user can still use the site
-                          // in this original tab.
-                      }
-                  }
-                  // If window.opener *exists*, this is the *newly opened* tab,
-                  // so we do nothing and let the page load normally.
-              });
-    </script>
 </html>
