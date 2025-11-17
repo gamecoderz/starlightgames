@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google</title>
+    
+    <style>
+        :root {
+            --primary-color: #4c68ff;
+            --text-color: #333333;
+            --bg-color: #f8f8f8;
+            --font-stack: 'Inter', sans-serif;
+        }
+        
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .main-app-container {
+            width: 90%;
+            max-width: 900px; 
+            height: 90vh; 
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .chat-embed-area {
+            flex-grow: 1; /* Makes this area fill the space */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden; 
+        }
+        
+        /* Ensures the iframe takes up all the space within its container */
+        .chat-embed-area iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* --- BUTTON STYLES --- */
+        
+        /* Fixed: Styling for the container holding the buttons */
+        .footer-actions {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+
+        /* Base button style */
+        .nav-button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none; 
+            display: inline-block;
+            margin-left: 10px; 
+        }
+
+        /* Back to App button specific style */
+        .back-button {
+            padding: 10px 20px; /* Slightly larger padding for primary action */
+            font-size: 1em;
+            font-weight: bold;
+            background-color: var(--primary-color);
+        }
+        .back-button:hover {
+            background-color: #3a50d8;
+        }
+
+        /* Refresh button specific style */
+        .refresh-button {
+            background-color: #008069; /* Green color */
+            padding: 10px 15px;
+        }
+        .refresh-button:hover {
+            background-color: #006b5a;
+        }
+/* Specific style for the Fullscreen button */
+.fullscreen-button {
+    background-color: #f7941d; /* A distinctive orange/yellow color */
+}
+.fullscreen-button:hover {
+    background-color: #e0851a;
+}
+    </style>
+</head>
+<body>
+
+    <div class="main-app-container">
+        <h1>Starlight Games Community Chat</h1>
+        <p>I recommend using fullscreen on your chromebook! (please I don't have time for this, use appropiate names!)</p>
+        <div class="chat-embed-area">
+  <iframe id= "chatFrame" src="https://deadsimplechat.com/xlR-fRK3h" width="100%" height="100%"></iframe>            
+        </div>
+        
+        <div class="footer-actions">
+            <button class="nav-button back-button" onclick="redirectToApp()">
+                ← Back to App
+            </button>
+            
+            <button class="nav-button refresh-button" onclick="refreshChat()">
+                ↻ Refresh Chat (Spam if blocked!)
+            </button>
+            <button class="nav-button fullscreen-button" onclick="toggleFullscreen()">
+               ⛶ Fullscreen
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // --- Core Functions ---
+        function redirectToApp() {
+            // NOTE: The destination URL for "Back to App" is currently the site root.
+            window.location.href = '/'; 
+        }
+        
+        function refreshChat() {
+            const iframe = document.getElementById('chatFrame');
+            if (iframe) {
+                // Forces the iframe to reload its content by resetting the source URL.
+                iframe.src = iframe.src; 
+            }
+        }
+        function toggleFullscreen() {
+    const chatFrame = document.getElementById('chatFrame');
+
+    if (!document.fullscreenElement) {
+        // Go fullscreen
+        if (chatFrame.requestFullscreen) {
+            chatFrame.requestFullscreen();
+        } else if (chatFrame.mozRequestFullScreen) { /* Firefox */
+            chatFrame.mozRequestFullScreen();
+        } else if (chatFrame.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            chatFrame.webkitRequestFullscreen();
+        } else if (chatFrame.msRequestFullscreen) { /* IE/Edge */
+            chatFrame.msRequestFullscreen();
+        }
+    } else {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { /* Firefox */
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE/Edge */
+            document.msExitFullscreen();
+        }
+    }
+}
+     document.addEventListener('DOMContentLoaded', function() {
+                  // Check if this window was opened by another window.
+                  // If window.opener is null, this is the *original* tab.
+                  if (!window.opener) {
+
+                      // Try to open the new 'about:blank' tab
+                      const newWindow = window.open('about:blank', '_blank');
+
+                      if (newWindow) {
+                          // Success! Popup was not blocked.
+
+                          // 1. Get the current page's entire HTML
+                          const currentHtml = document.documentElement.outerHTML;
+
+                          // 2. Write that HTML into the new 'about:blank' tab
+                          newWindow.document.write(currentHtml);
+                          newWindow.document.close();
+
+                          // 3. Redirect the *original* tab (this one) to Google
+                          window.location.replace('https://www.google.com');
+
+                      } else {
+                          // Failure! Popup was blocked.
+                          alert("Please enable popups!");
+                          // We don't redirect, so the user can still use the site
+                          // in this original tab.
+                      }
+                  }
+                  // If window.opener *exists*, this is the *newly opened* tab,
+                  // so we do nothing and let the page load normally.
+              });
+    </script>
+</body>
+</html>
