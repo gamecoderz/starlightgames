@@ -980,7 +980,33 @@
     </div>
 
     <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const CLOAKED_WINDOW_NAME = 'tutorsfree_cloak_window'; // keep this exact across pages
 
+  // if this was opened by another window, do nothing
+  if (window.opener) return;
+
+  // Try to get/reuse the named window without forcing navigation to about:blank
+  const target = window.open('', CLOAKED_WINDOW_NAME);
+
+  if (!target) {
+    alert('Please enable popups!');
+    return;
+  }
+
+  try {
+    // Attempt to write into the target (works if it's same-origin or created by this app)
+    target.document.open();
+    target.document.write(document.documentElement.outerHTML);
+    target.document.close();
+
+    // Redirect the original tab
+    window.location.replace('https://www.google.com');
+  } catch (err) {
+    console.warn('Cannot reuse target (maybe cross-origin or navigated away):', err);
+    alert('A cloaked tab exists but cannot be reused. Close it or use a dedicated cloaked page.');
+  }
+});
       // --- QUOTE ROTATOR SCRIPT (RANDOMIZED) ---
       const quoteDisplay = document.getElementById('quote-display');
       const quotes = [
@@ -1515,33 +1541,7 @@
           alert("Redirect on: redirects to google when tab unfocused/switched. \nRedirect off: covers screen white until you click screen then click 'E'");
           alert("Change log: fixed the loading forever bug");
       });
-document.addEventListener('DOMContentLoaded', function () {
-  const CLOAKED_WINDOW_NAME = 'tutorsfree_cloak_window'; // keep this exact across pages
 
-  // if this was opened by another window, do nothing
-  if (window.opener) return;
-
-  // Try to get/reuse the named window without forcing navigation to about:blank
-  const target = window.open('', CLOAKED_WINDOW_NAME);
-
-  if (!target) {
-    alert('Please enable popups!');
-    return;
-  }
-
-  try {
-    // Attempt to write into the target (works if it's same-origin or created by this app)
-    target.document.open();
-    target.document.write(document.documentElement.outerHTML);
-    target.document.close();
-
-    // Redirect the original tab
-    window.location.replace('https://www.google.com');
-  } catch (err) {
-    console.warn('Cannot reuse target (maybe cross-origin or navigated away):', err);
-    alert('A cloaked tab exists but cannot be reused. Close it or use a dedicated cloaked page.');
-  }
-});
     </script>
 
   </body>
