@@ -1,3 +1,4 @@
+settimeout(() =>{
 // cloner.js content:
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -34,3 +35,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+}, 500);
