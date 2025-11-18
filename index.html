@@ -1305,8 +1305,11 @@
              toggleFooter();
           }
       function refreshIframe() {
-    // Access the contentWindow property and call reload()
-    iframeEl.contentWindow.location.reload(); 
+// Get the current URL from the iframe's location
+    const currentSrc = iframeEl.contentWindow.location.href;
+    
+    // Use assign() or replace() to reload the current page.
+    iframeEl.contentWindow.location.assign(currentSrc);
 }
     </script>
     <script>
