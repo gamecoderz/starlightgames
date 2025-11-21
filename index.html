@@ -52,90 +52,7 @@
             transform: scale(1);
         }
 
-      /* --- NEW: Disclaimer Popup Styles --- */
-      #disclaimer-popup {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
-          z-index: 9998; /* Just below loading screen */
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          visibility: hidden; /* Start hidden */
-          opacity: 0;
-          backdrop-filter: blur(5px);
-          -webkit-backdrop-filter: blur(5px);
-          transition: opacity 0.3s ease, visibility 0.3s ease;
-      }
-
-      /* This class will be added by JS to show it */
-      #disclaimer-popup.visible {
-          visibility: visible;
-          opacity: 1;
-      }
-
-      .popup-content {
-          background-color: var(--secondary-bg);
-          padding: 30px;
-          border-radius: var(--border-radius);
-          box-shadow: var(--shadow-light-bottom), var(--shadow-light-top);
-          text-align: center;
-          max-width: 400px;
-          color: var(--text-color);
-      }
-
-      .popup-content h3 {
-          font-size: 1.8em;
-          font-weight: 700;
-          color: var(--primary-color);
-          margin-top: 0;
-      }
-
-      .popup-content p {
-          font-size: 1.1em;
-          line-height: 1.6;
-          margin-bottom: 25px;
-      }
-
-      .popup-agree {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 20px;
-      }
-
-      .popup-agree input[type="checkbox"] {
-          width: 18px;
-          height: 18px;
-          accent-color: var(--primary-color);
-      }
-
-      .popup-agree label {
-          font-weight: 500;
-      }
-
-      #agree-button {
-          font-family: var(--font-stack);
-          font-size: 1.1em;
-          font-weight: 700;
-          color: white;
-          background-color: var(--primary-color);
-          border: none;
-          border-radius: 8px;
-          padding: 12px 30px;
-          cursor: pointer;
-          transition: background-color 0.2s, opacity 0.2s;
-      }
-
-      #agree-button:disabled {
-          background-color: #999;
-          opacity: 0.6;
-          cursor: not-allowed;
-      }
+  
       /* ADD THIS to your main <style> tag */
       .settings-item input[type="text"] {
           padding: 10px 15px;
@@ -735,30 +652,7 @@
           box-shadow: var(--shadow-inset-light);
           color: var(--primary-color);
       }
-      /* --- Updated 'View Full Terms' Button Styling --- */
-#terms-of-service-btn {
-    flex-grow: 1; 
-    
-    /* Neumorphic Appearance */
-    color: var(--text-color);
-    background-color: var(--secondary-bg);
-    border: none;
-    cursor: pointer;
-    transition: all 0.25s ease-in-out;
-    box-shadow: var(--shadow-light-top), var(--shadow-light-bottom); /* Floating look */
-    font-weight: 500;
-    border-radius: var(--border-radius);
-    padding: 12px 15px;
-    margin: 15px;
-}
 
-#terms-of-service-btn:hover {
-    /* Pushed-in look on hover */
-    transform: scale(0.98);
-    box-shadow: var(--shadow-inset-light); 
-    color: var(--primary-color);
-  
-}
     </style>
   </head>
   <body>
@@ -820,24 +714,7 @@
         </button>
       </div>
 
-      <div id="disclaimer-popup">
-        <div class="popup-content">
-          <h3>Disclaimer</h3>
-          <p>
-            You cannot blame the creator if you get caught using this site. Use
-            at your own risk.
-          </p>
-                    <button onclick="window.open('terms.html')" id="terms-of-service-btn">
-📄 View Full Terms
-</button>
 
-          <div class="popup-agree">
-            <input type="checkbox" id="agree-checkbox" />
-            <label for="agree-checkbox">I agree</label>
-          </div>
-          <button id="agree-button" disabled>Enter Site</button>
-        </div>
-      </div>
       
       <div id="tab-bar">
         <button
@@ -992,7 +869,15 @@
                 <option value="none">None</option>
               </select>
             </div>
+           <div class ="menu-buttons">        
+                           <div class="menu-section-title">ℹ️ Information</div>
 
+            <button
+              onclick="window.open("/terms.html");"
+            >
+            📝 View full terms
+            </button>
+            </div>
             <div id="custom-cloak-options">
               <div
                 class="menu-section-title"
@@ -1021,6 +906,8 @@
               <div class="menu-buttons" style="margin-top: 25px;">
                 <button onclick="runCustomCloak()">Apply Custom Cloak</button>
               </div>
+            </button>
+            
             </div>
           </div>
         </div>
@@ -1551,52 +1438,6 @@
           }
       }
 
-      // --- NEW: DISCLAIMER POPUP SCRIPT ---
-
-      // 1. Get references to the new popup elements
-      const disclaimerPopup = document.getElementById('disclaimer-popup');
-      const agreeCheckbox = document.getElementById('agree-checkbox');
-      const agreeButton = document.getElementById('agree-button');
-
-      /**
-       * Shows the disclaimer popup.
-       */
-      function showDisclaimer() {
-          if (disclaimerPopup) {
-              disclaimerPopup.classList.add('visible');
-          }
-      }
-
-      /**
-       * Hides the disclaimer popup.
-       */
-      function hideDisclaimer() {
-          if (disclaimerPopup) {
-                      showModal("Redirect on: redirects to google when tab unfocused/switched. \nRedirect off: covers screen white until you click screen then click 'E'");
-
-              disclaimerPopup.classList.remove('visible');
-          }
-      }
-
-      // 2. Add listeners for the popup logic
-      if (disclaimerPopup && agreeCheckbox && agreeButton) {
-
-          // Add listener to the checkbox
-          agreeCheckbox.addEventListener('change', () => {
-              // Enable/disable the button based on the checkbox state
-              agreeButton.disabled = !agreeCheckbox.checked;
-          });
-
-          // Add listener to the "Enter Site" button
-          agreeButton.addEventListener('click', () => {
-              // Hide the popup when clicked (if enabled)
-              hideDisclaimer();
-          });
-
-      } else {
-          // This will warn you if you forgot the HTML
-          console.warn("Disclaimer popup HTML elements not found. The popup will not work.");
-      }
 
 
       // --- REPLACE YOUR OLD LOADING SCREEN LOGIC WITH THIS ---
@@ -1611,7 +1452,8 @@
           // --- NEW ---
           // Show the disclaimer *after* the loading screen is hidden
           // We wait a tiny bit for the loading screen to fade out
-          setTimeout(showDisclaimer, 500);
+          setTimeout(()=>{                      showModal("Redirect on: redirects to google when tab unfocused/switched. \nRedirect off: covers screen white until you click screen then click 'E'");
+}, 500);
       }
 
       // Wait for the entire page to load (including images/resources)
