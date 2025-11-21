@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Google</title>
@@ -14,6 +16,42 @@
       rel="stylesheet"
     />
     <style>
+             .modal-overlay {
+            /* Fixed position to cover the whole screen */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Semi-transparent black backdrop */
+            background-color: rgba(0, 0, 0, 0.7);
+            /* Hidden by default */
+            visibility: hidden;
+            opacity: 0;
+            /* Transition for smooth fade-in/out */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 50; /* Ensure it's above other content */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            /* Initial state: slightly off-screen and scaled down */
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            /* Active state: centered and full scale */
+            transform: scale(1);
+        }
+
       /* --- NEW: Disclaimer Popup Styles --- */
       #disclaimer-popup {
           position: fixed;
@@ -722,6 +760,44 @@
     </style>
   </head>
   <body>
+      <!-- 3. Modal HTML Structure (from modal_structure.html) -->
+    <!-- It's best to place this right before the closing </body> tag -->
+    <div id="custom-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4" 
+             role="document">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-start border-b pb-3 mb-4">
+                <h3 id="modal-title" class="text-xl font-bold text-gray-900">Notification</h3>
+                <button 
+                    onclick="closeModal()" 
+                    class="text-gray-400 hover:text-gray-600 transition"
+                    aria-label="Close modal"
+                >
+                    <!-- Close icon (X) -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Modal Body (Message) -->
+            <div class="mb-6">
+                <p id="modal-message" class="text-gray-700 leading-relaxed">
+                    Default message.
+                </p>
+            </div>
+
+            <!-- Modal Footer (Action Button) -->
+            <div class="flex justify-end">
+                <button 
+                    onclick="closeModal()" 
+                    class="bg-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-indigo-700 transition duration-150"
+                >
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-screen">
       <div class="loader-container">
         <div class="loader-circle"></div>
@@ -787,7 +863,7 @@
           <div id="quote-display"></div>
           <div class="menu-buttons" style="margin-top: 30px;">
             <button
-                onclick="alert('When you are trying to google something, use start.duckduckgo.com as an alternative to google since google search is broken. When you are using duckduckgo, use the textbox in the duckduckgo site'); alert('List of services that dont work: (may not list all, please contact owner if you find one):\nNow.gg\nGoogle (any services that relate to google)\nRoblox\nYoutube');alert*('it isnt out tho 💀'); /* showIframe('https://auth.teaching.za.com/indev'); */"
+                onclick="showModal('When you are trying to google something, use start.duckduckgo.com as an alternative to google since google search is broken. When you are using duckduckgo, use the textbox in the duckduckgo site'); showModal('List of services that dont work: (may not list all, please contact owner if you find one):\nNow.gg\nGoogle (any services that relate to google)\nRoblox\nYoutube');showModal('it isnt out tho 💀'); /* showIframe('https://auth.teaching.za.com/indev'); */"
             >
               🚀 Surf Web Freely (WIP)
             </button>
@@ -830,12 +906,12 @@
             🗨️ Chat with friends/community
             </button>
             <button
-              onclick="alert('If you judge my music or play it out loud to the class, I will punch you, slice you, grate you, burn you, put you in the oven, feed you to dogs, hang you, cut you, choke you, kick you, whip you, and dump you out.'); window.open('playlist.html');"
+              onclick="openPlaylist()"
             >
             🎵 My playlist
             </button>
             <button
-              onclick="alert('BROKEN!')"
+              onclick="showModal('BROKEN!')"
             >
             🤖 Chat Bot
             </button>
@@ -1494,6 +1570,8 @@
        */
       function hideDisclaimer() {
           if (disclaimerPopup) {
+                      showModal("Redirect on: redirects to google when tab unfocused/switched. \nRedirect off: covers screen white until you click screen then click 'E'");
+
               disclaimerPopup.classList.remove('visible');
           }
       }
@@ -1538,10 +1616,118 @@
       window.addEventListener('load', () => {
           // Hide the loading screen after a small delay
           setTimeout(hideLoadingScreen, 500);
-          alert("Redirect on: redirects to google when tab unfocused/switched. \nRedirect off: covers screen white until you click screen then click 'E'");
-          alert("Change log: fixed the loading forever bug");
       });
 
+        // Get references to the modal elements
+        const modal = document.getElementById('custom-modal');
+        const modalMessage = document.getElementById('modal-message');
+
+        // Global queue holds message and the Promise resolver function for that message
+        const modalQueue = [];
+        // State variable to prevent overlapping modals
+        let isModalOpen = false;
+        // The resolve function for the currently displayed modal's promise
+        let currentResolver = null; 
+        
+        /**
+         * Public function to queue or show a modal with a specified message.
+         * Returns a Promise that resolves when the user dismisses the modal.
+         * @param {string} Mssg The message to display inside the modal.
+         * @returns {Promise<void>} A promise that resolves upon dismissal.
+         */
+        function showModal(Mssg) {
+            return new Promise(resolve => {
+                // 1. Add the new message and its resolver to the end of the queue
+                modalQueue.push({ Mssg, resolve });
+                console.log(`Message queued: "${Mssg.substring(0, 15)}...". Queue size: ${modalQueue.length}`);
+
+                // 2. Try to process the queue immediately
+                processQueue();
+            });
+        }
+        
+        /**
+         * Processes the next message in the queue and displays the modal if it's currently closed.
+         */
+        function processQueue() {
+            if (modalQueue.length > 0 && !isModalOpen) {
+                isModalOpen = true;
+
+                // Get the oldest message and its resolver from the front of the queue
+                const nextItem = modalQueue.shift();
+                
+                // Store the resolver so closeModal can use it
+                currentResolver = nextItem.resolve; 
+
+                // --- FIX: Replace \n with <br> and use innerHTML ---
+                // We use innerHTML to allow the <br> tags to render correctly.
+                const htmlMessage = nextItem.Mssg.replace(/\n/g, '<br>');
+
+                // 1. Update the message content using innerHTML
+                modalMessage.innerHTML = htmlMessage;
+
+                // 2. Make the modal visible and activate the transition
+                modal.classList.add('active');
+                
+                // 3. Set focus to the close button for accessibility
+                modal.querySelector('button').focus();
+            }
+        }
+        
+        /**
+         * Hides the current modal, resolves the waiting promise, and triggers the next one in the queue.
+         */
+        function closeModal() {
+            // Check if a modal is actually open
+            if (!isModalOpen) return;
+            
+            // 1. Hide the modal visually
+            modal.classList.remove('active');
+
+            // 2. Set state to closed
+            isModalOpen = false;
+            
+            // 3. Resolve the promise for the modal that was just closed
+            if (currentResolver) {
+                currentResolver();
+                currentResolver = null; // Clear the resolver
+            }
+            
+            // 4. Wait slightly for the CSS transition to complete (0.3s) before processing the next one
+            setTimeout(() => {
+                // Try to process the next message in the queue
+                processQueue();
+            }, 300); // 300ms matches the CSS transition duration
+        }
+        
+        // --- YOUR SPECIFIC USE CASE (Fixed) ---
+        /**
+         * This function demonstrates how to correctly pause the script.
+         * It must be async, and must use 'await' before showModal.
+         */
+        async function openPlaylist() {
+            // 1. The script PAUSES here until the user dismisses the modal.
+            await showModal("If you judge my music or play it out loud to the class, I will punch you, slice you, grate you, burn you, put you in the oven, feed you to dogs, hang you, cut you, choke you, kick you, whip you, and dump you out.");
+            
+            // 2. This line only runs AFTER the user closes the modal.
+            window.open('playlist.html', '_blank'); 
+        }
+
+
+
+
+        // Event Listeners for closing the modal (these still call closeModal)
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
     </script>
 
   </body>
