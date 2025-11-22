@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-        <script src="https://cdn.tailwindcss.com"></script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,43 +15,149 @@
       rel="stylesheet"
     />
     <style>
-             .modal-overlay {
-            /* Fixed position to cover the whole screen */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* Semi-transparent black backdrop */
-            background-color: rgba(0, 0, 0, 0.7);
-            /* Hidden by default */
-            visibility: hidden;
-            opacity: 0;
-            /* Transition for smooth fade-in/out */
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            z-index: 50; /* Ensure it's above other content */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
 
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
+  /* --- 1. MODAL OVERLAY (The Dark Background) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Semi-transparent black backdrop for dimming the background */
+    background-color: rgba(0, 0, 0, 0.7);
+    
+    /* Initially hidden with smooth transition */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 100; /* High z-index to cover everything */
+    
+    /* Center the modal content using Flexbox */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .modal-content {
-            /* Initial state: slightly off-screen and scaled down */
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
+/* State when the modal is active (visible) */
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
 
-        .modal-overlay.active .modal-content {
-            /* Active state: centered and full scale */
-            transform: scale(1);
-        }
+/* --- 2. MODAL CONTENT (The Main Box) --- */
+.modal-content {
+    position: relative;
+    
+    /* Neumorphic styling (REPLACING bg-white, rounded-xl, shadow-2xl) */
+    background-color: var(--secondary-bg);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    
+    /* Size & Animation (REPLACING w-full, max-w-md, p-6, m-4) */
+    max-width: 400px; 
+    width: 90%;
+    max-height: 90vh; 
+    overflow-y: auto; 
+    
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
 
-  
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+/* --- 3. MODAL HEADER FIXES --- */
+/* The HTML uses inline divs for header, message, and footer. We target these specific sections. */
+
+/* Styling for the header div (REPLACING flex justify-between items-start border-b pb-3 mb-4) */
+.modal-content > div:nth-child(1) { 
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line-color);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+/* Styling for the h3 title (REPLACING text-xl font-bold text-gray-900) */
+#modal-title {
+    margin: 0;
+    font-size: 1.25em;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+/* --- 4. CLOSE (X) BUTTON FIX --- */
+/* This targets the button inside the header div */
+.modal-content > div:nth-child(1) button { 
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    line-height: 1; 
+    padding: 4px;
+    border-radius: 50%;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Styling for the SVG (REPLACING text-gray-400 hover:text-gray-600) */
+.modal-content > div:nth-child(1) button svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    color: var(--text-color);
+    transition: color 0.2s;
+}
+
+.modal-content > div:nth-child(1) button:hover svg {
+    color: var(--primary-color);
+}
+
+
+/* --- 5. MODAL BODY (Message) FIXES --- */
+/* Styling for the message div (REPLACING mb-6) */
+.modal-content > div:nth-child(2) {
+    margin-bottom: 24px;
+}
+
+/* Styling for the message paragraph (REPLACING text-gray-700 leading-relaxed) */
+#modal-message {
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+}
+
+
+/* --- 6. MODAL FOOTER & OK BUTTON FIXES --- */
+/* Styling for the footer div (REPLACING flex justify-end) */
+.modal-content > div:nth-child(3) {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Styling for the OK Button (REPLACING bg-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-indigo-700) */
+.modal-content > div:nth-child(3) button {
+    /* Primary button Neumorphic style */
+    background-color: var(--primary-color);
+    color: white; 
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--primary-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    /* Animation and Shadow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); 
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.modal-content > div:nth-child(3) button:hover {
+    background-color: var(--primary-dark);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(0.98);
+}
       /* ADD THIS to your main <style> tag */
       .settings-item input[type="text"] {
           padding: 10px 15px;
@@ -365,6 +470,8 @@
           font-size: 1em;
           font-weight: 600;
           border-radius: 30px; /* Pill-shaped buttons */
+
+
       }
       #tab-bar button.active-tab {
           /* Active button highlight inside the pod */
