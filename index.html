@@ -15,7 +15,82 @@
       rel="stylesheet"
     />
     <style>
+/* Floating Info Button (?) */
+#info-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    width: 2rem; 
+    height: 2rem; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move; 
+    transition: background-color 0.2s, box-shadow 0.2s;
+    border: none;
+    border-radius: 9999px; 
+    background-color: var(--color-indigo-600); /* Requires defining CSS variables or replacing with colors */
+    color: white;
+    font-size: 1rem; 
+    font-weight: 700;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    outline: 3px solid #a5b4fc; 
+}
+#info-btn:hover {
+    background-color: var(--color-indigo-700);
+}
 
+
+/* Modal/Overlay */
+#performance-modal {
+    position: fixed;
+    bottom: 4rem; 
+    right: 2rem;
+    z-index: 999;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out; 
+    transform: translateY(10px);
+    opacity: 0;
+    width: 13rem; /* Fixed width */
+    height: 8rem; /* FIXED HEIGHT */
+    font-size: 0.9rem; 
+    cursor: move; 
+
+    /* Base styling */
+    background-color: white;
+    padding: 0.75rem; 
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #e5e7eb;
+}
+.stat-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem; 
+    margin-bottom: 0.2rem;
+}
+
+/* Color Utility Classes for JS */
+.text-good { color: #10b981; }
+.text-medium { color: #f59e0b; }
+.text-bad { color: #ef4444; }
+.text-default { color: #2563eb; }
+
+/* Mobile Adjustment Example */
+@media (max-width: 639px) {
+    #info-btn {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    #performance-modal {
+        bottom: 3rem; 
+        right: 1rem;
+        width: 12rem; 
+        height: 8rem; 
+    }
+}
   /* --- 1. MODAL OVERLAY (The Dark Background) --- */
 .modal-overlay {
     position: fixed;
@@ -1067,6 +1142,26 @@
         >
           Redirect: ON
         </button>
+        <!-- Performance Monitor Modal -->
+<div id="performance-modal">
+    <h3>Performance Stats</h3>
+    <div class="space-y-1">
+        <div class="stat-line">
+            <span>FPS:</span>
+            <span id="fps-value" class="stat-value text-default">--</span>
+        </div>
+        <div class="stat-line">
+            <span>Ping (ms):</span>
+            <span id="ping-value" class="stat-value text-default">--</span>
+        </div>
+    </div>
+    <p class="text-xs text-center" style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem;">Ping updates every 1s.</p>
+</div>
+
+<!-- Floating Info Button (?) -->
+<button id="info-btn">
+    <span>?</span>
+</button>
       </div>
     </div>
 
@@ -1639,6 +1734,255 @@ loadQuotes();
             }
         });
     </script>
+<script>// Wrap the entire script execution in DOMContentLoaded to ensure all HTML elements
+// are loaded and available before the script attempts to find them.
+document.addEventListener('DOMContentLoaded', () => {
 
+    const infoBtn = document.getElementById('info-btn');
+    const modal = document.getElementById('performance-modal');
+    const fpsValue = document.getElementById('fps-value');
+    const pingValue = document.getElementById('ping-value');
+
+    // CRITICAL: Check if the required elements were found. If they are missing, the script will not run.
+    if (!infoBtn || !modal || !fpsValue || !pingValue) {
+        console.error("Performance Monitor Error: One or more required HTML elements (info-btn, performance-modal, fps-value, ping-value) are missing from the page. The script cannot initialize.");
+        return; 
+    }
+
+    let isModalVisible = false;
+
+    // Helper function to update the color class
+    function updateColorClass(element, newClass) {
+        const colorClasses = ['text-good', 'text-medium', 'text-bad', 'text-default'];
+        colorClasses.forEach(c => element.classList.remove(c));
+        element.classList.add(newClass);
+    }
+
+    // --- 1. Reusable Draggable Logic ---
+    function makeDraggable(element, clickCallback, followerElement) {
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let moved = false; // Tracks if a significant move actually occurred
+        
+        // Fixed gap value (16px = 1rem) for vertical separation between button and modal
+        const VERTICAL_GAP = 16; 
+
+        function startDrag(e) {
+            e.preventDefault();
+            moved = false;
+            
+            // Convert element positioning from bottom/right to top/left only once
+            if (!element.style.top || !element.style.left) {
+                const rect = element.getBoundingClientRect();
+                
+                // Clear the original bottom/right anchors from the CSS
+                element.style.right = '';
+                element.style.bottom = '';
+                
+                // Set the current position using top/left
+                element.style.top = rect.top + 'px';
+                element.style.left = rect.left + 'px';
+            }
+            
+            // If a follower exists and is visible, do the same conversion for it
+            if (followerElement && isModalVisible && (!followerElement.style.top || !followerElement.style.left)) {
+                const rect = followerElement.getBoundingClientRect();
+                followerElement.style.right = '';
+                followerElement.style.bottom = '';
+                followerElement.style.top = rect.top + 'px';
+                followerElement.style.left = rect.left + 'px';
+            }
+
+
+            dragOffsetX = e.clientX - element.getBoundingClientRect().left;
+            dragOffsetY = e.clientY - element.getBoundingClientRect().top;
+
+            isDragging = true;
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('mousemove', handleDrag);
+        }
+
+        function handleDrag(e) {
+            e.preventDefault();
+            if (!isDragging) return;
+
+            // Detect movement to prevent accidental clicks
+            if (Math.abs(e.movementX) > 1 || Math.abs(e.movementY) > 1) {
+                moved = true;
+            }
+
+            let newLeft = e.clientX - dragOffsetX;
+            let newTop = e.clientY - dragOffsetY;
+
+            // Boundary checks for the main element
+            if (newLeft < 0) newLeft = 0;
+            if (newTop < 0) newTop = 0;
+            if (newLeft + element.offsetWidth > window.innerWidth) newLeft = window.innerWidth - element.offsetWidth;
+            if (newTop + element.offsetHeight > window.innerHeight) newTop = window.innerHeight - element.offsetHeight;
+
+            element.style.top = newTop + "px";
+            element.style.left = newLeft + "px";
+
+            // Update the follower element's position (the modal)
+            if (followerElement && isModalVisible) {
+                const B_width = element.offsetWidth;
+                const M_width = followerElement.offsetWidth;
+                const M_height = followerElement.offsetHeight;
+
+                // New Modal Top: Button Top - Modal Height - Gap
+                let M_top = newTop - M_height - VERTICAL_GAP;
+                
+                // New Modal Left: Right-align the modal with the button
+                let M_left = newLeft + B_width - M_width;
+
+                // Boundary check for the follower modal
+                if (M_top < 0) M_top = 0;
+                if (M_left < 0) M_left = 0;
+                if (M_left + M_width > window.innerWidth) M_left = window.innerWidth - M_width;
+                // The button's boundary check covers the lower limit for the modal since M_top depends on B_top.
+
+                followerElement.style.top = M_top + "px";
+                followerElement.style.left = M_left + "px";
+            }
+        }
+
+        function endDrag() {
+            isDragging = false;
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('mousemove', handleDrag);
+        }
+
+        // Attach the mouse down handler
+        element.onmousedown = startDrag;
+
+        // Attach the click handler, checking for movement
+        element.addEventListener('click', (e) => {
+            if (moved) {
+                // If movement occurred, stop the propagation to prevent the click action (toggle modal)
+                e.stopImmediatePropagation();
+                moved = false; 
+                return;
+            }
+            if (clickCallback) {
+                clickCallback(e);
+            }
+        });
+    }
+
+    // --- 2. Modal Toggle Callback ---
+    const toggleModal = () => {
+        isModalVisible = !isModalVisible;
+        if (isModalVisible) {
+            // Show modal
+            modal.style.opacity = '1';
+            // Remove the translateY transition effect as position is now strictly managed by top/left in drag
+            modal.style.transform = 'translateY(0)'; 
+            modal.style.pointerEvents = 'auto';
+            
+            // Immediately reposition the modal relative to the button when opened
+            const B_rect = infoBtn.getBoundingClientRect();
+            const M_width = modal.offsetWidth;
+            const M_height = modal.offsetHeight;
+            const B_width = infoBtn.offsetWidth;
+            const VERTICAL_GAP = 16;
+            
+            modal.style.top = (B_rect.top - M_height - VERTICAL_GAP) + 'px';
+            modal.style.left = (B_rect.left + B_width - M_width) + 'px';
+            
+            measurePing();
+        } else {
+            // Hide modal
+            modal.style.opacity = '0';
+            modal.style.transform = 'translateY(10px)';
+            modal.style.pointerEvents = 'none';
+        }
+    };
+
+    // --- 3. Apply Draggable Logic ---
+
+    // Make the Floating Info Button draggable and set its click action, 
+    // with the modal as its follower element.
+    makeDraggable(infoBtn, toggleModal, modal);
+
+    // --- 4. FPS Calculation Logic (Unchanged) ---
+
+    let lastFrameTime = performance.now();
+    let frameCount = 0;
+    const fpsInterval = 100; // Update FPS every 0.1 seconds (more responsive)
+    let fpsTimer = 0;
+
+    function updateFPS(currentTime) {
+        if (!fpsTimer) fpsTimer = currentTime;
+        frameCount++;
+
+        if (currentTime >= fpsTimer + fpsInterval) {
+            const timeElapsed = currentTime - fpsTimer;
+            const currentFPS = (frameCount / timeElapsed) * 1000;
+
+            if (isModalVisible) {
+                fpsValue.textContent = Math.round(currentFPS);
+
+                let colorClass = 'text-bad';
+                if (currentFPS > 55) {
+                    colorClass = 'text-good';
+                } else if (currentFPS > 30) {
+                    colorClass = 'text-medium';
+                }
+                updateColorClass(fpsValue, colorClass);
+            }
+            fpsTimer = currentTime;
+            frameCount = 0;
+        }
+        requestAnimationFrame(updateFPS);
+    }
+
+    // Start the FPS loop
+    requestAnimationFrame(updateFPS);
+
+
+    // --- 5. Ping (Latency) Measurement Logic (Unchanged) ---
+
+    const PING_URL = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    const PING_INTERVAL_MS = 1000; // Check ping every 1 second (more responsive)
+
+    async function measurePing() {
+        if (!isModalVisible) return;
+
+        pingValue.textContent = '...'; 
+        updateColorClass(pingValue, 'text-default');
+
+        try {
+            const startTime = performance.now();
+            // Using a well-known CDN resource to measure general network latency
+            await fetch(PING_URL, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'reload'
+            });
+
+            const endTime = performance.now();
+            const latency = Math.round(endTime - startTime);
+
+            pingValue.textContent = latency;
+
+            let colorClass = 'text-bad';
+            if (latency < 100) {
+                colorClass = 'text-good';
+            } else if (latency < 250) {
+                colorClass = 'text-medium';
+            }
+            updateColorClass(pingValue, colorClass);
+
+        } catch (error) {
+            console.error("Ping error:", error);
+            pingValue.textContent = 'Error';
+            updateColorClass(pingValue, 'text-bad');
+        }
+    }
+
+    // Periodically check ping
+    setInterval(measurePing, PING_INTERVAL_MS);
+}); // End of DOMContentLoaded</script>
   </body>
 </html>
