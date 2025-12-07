@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Performance Monitor</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #252526;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        h1 {
+            color: #00bcd4;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #b3b3b3;
+            margin-top: 25px;
+            font-size: 1.1em; /* Increased size for readability */
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .metric-card h2 {
+            margin: 0 0 5px 0;
+            font-size: 0.9em;
+            color: #00bcd4;
+        }
+        .metric-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.7em; /* Small size for the description */
+            color: #b3b3b3;
+            font-weight: normal;
+            height: 25px; /* Ensure cards are uniform height */
+        }
+        .metric-card p {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 5px 0;
+            transition: color 0.5s;
+        }
+        .chart-container {
+            width: 100%;
+            max-height: 400px;
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        /* Custom Colors for JS status updates */
+        .good { color: #4CAF50; }
+        .needs-improvement { color: #FFC107; }
+        .poor { color: #F44336; }
+        .pass { color: #4CAF50; }
+        .fail { color: #F44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Real-Time Web Performance Dashboard</h1>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h2>FCP (First Contentful Paint)</h2>
+                <h3>Time until the first visible element appears.</h3>
+                <p id="fcp-value">Measuring...</p>
+            </div>
+            <div class="metric-card">
+                <h2>LCP (Largest Contentful Paint)</h2>
+                <h3>Time until the biggest page element is fully loaded.</h3>
+                <p id="lcp-value">Measuring...</p>
+            </div>
+            <div class="metric-card">
+                <h2>INP (Interaction Latency)</h2>
+                <h3>Max delay between a click/tap and the resulting screen update.</h3>
+                <p id="inp-value">Measuring...</p>
+            </div>
+            <div class="metric-card">
+                <h2>FPS (Frames Per Second)</h2>
+                <h3>Visual smoothness; rate browser draws the screen (60 is ideal).</h3>
+                <p id="fps-value">Measuring...</p>
+            </div>
+            <div class="metric-card">
+                <h2>Ping (Network Latency)</h2>
+                <h3>Time (in ms) to send a request and receive a response.</h3>
+                <p id="ping-value">Measuring...</p>
+            </div>
+            <div class="metric-card">
+                <h2>DCL (Document Load)</h2>
+                <h3>Time until the main HTML document is completely loaded.</h3>
+                <p id="dcl-value">Measuring...</p>
+            </div>
+            <div class="metric-card">
+                <h2>Local Storage Test</h2>
+                <h3>Checks if the browser can reliably save and read local data.</h3>
+                <p id="local-storage-status">Running...</p>
+            </div>
+            <div class="metric-card">
+                <h2>WebAssembly Support</h2>
+                <h3>Checks for support of high-performance, compiled web code.</h3>
+                <p id="wasm-support-status">Running...</p>
+            </div>
+        </div>
+
+        <hr style="border-color: #444;">
+
+        <h2>Key Load Timings</h2>
+        <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        // Function to format milliseconds into a more readable string
+        function formatTime(ms) {
+            if (ms < 1000) {
+                return `${ms.toFixed(2)} ms`;
+            }
+            return `${(ms / 1000).toFixed(2)} s`;
+        }
+
+        // Function to update the metric cards in the HTML and apply color
+        function updateMetric(id, value, type) {
+            const element = document.getElementById(id);
+            if (!element) return;
+
+            let colorClass = 'needs-improvement'; 
+            
+            if (type === 'paint') { // FCP/LCP
+                if (value <= 1800) { colorClass = 'good'; } 
+                else if (value <= 2500) { colorClass = 'needs-improvement'; } 
+                else { colorClass = 'poor'; }
+                element.textContent = formatTime(value);
+            } else if (type === 'dcl') { // DCL
+                element.textContent = formatTime(value);
+            } else if (type === 'inp') { // INP
+                if (value <= 200) { colorClass = 'good'; } 
+                else if (value <= 500) { colorClass = 'needs-improvement'; } 
+                else { colorClass = 'poor'; }
+                element.textContent = formatTime(value);
+            } else if (type === 'fps') { // FPS
+                const fpsValue = parseFloat(value);
+                if (fpsValue >= 55) { colorClass = 'good'; } 
+                else if (fpsValue >= 30) { colorClass = 'needs-improvement'; } 
+                else { colorClass = 'poor'; }
+                element.textContent = `${fpsValue.toFixed(0)} FPS`;
+            } else if (type === 'ping') { // Ping
+                const pingValue = parseFloat(value);
+                if (pingValue <= 50) { colorClass = 'good'; } 
+                else if (pingValue <= 150) { colorClass = 'needs-improvement'; } 
+                else { colorClass = 'poor'; }
+                element.textContent = `${pingValue.toFixed(0)} ms`;
+            } else if (type === 'passfail') { // Local Storage / WASM
+                if (value === 'PASS') { colorClass = 'pass'; }
+                else { colorClass = 'fail'; }
+                element.textContent = value;
+            }
+
+            element.className = ''; 
+            element.classList.add(colorClass);
+        }
+
+        // Global array to store chart data
+        const chartData = {
+            labels: [],
+            timing: [],
+        };
+
+        // Function to initialize and draw the chart
+        function drawChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            if (window.myPerformanceChart) {
+                window.myPerformanceChart.destroy();
+            }
+
+            window.myPerformanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Load Timing (ms)',
+                        data: chartData.timing,
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.8)', 
+                            'rgba(255, 159, 64, 0.8)', 
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 99, 132, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 99, 132, 1)' 
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#f0f0f0' },
+                            title: {
+                                display: true,
+                                text: 'Time in Milliseconds (ms)',
+                                color: '#b3b3b3'
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#f0f0f0' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Key Performance Milestones',
+                            color: '#b3b3b3'
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 1. Measure FCP, LCP, DCL (Load Timing) ---
+        function measurePaintAndLoadMetrics() {
+            const observer = new PerformanceObserver((list) => {
+                let lcpTime = 0;
+                
+                list.getEntries().forEach(entry => {
+                    if (entry.name === 'first-contentful-paint') {
+                        const fcp = entry.startTime;
+                        updateMetric('fcp-value', fcp, 'paint');
+                        
+                        chartData.labels.push('FCP');
+                        chartData.timing.push(fcp);
+                    }
+                    
+                    if (entry.entryType === 'largest-contentful-paint') {
+                        lcpTime = entry.startTime;
+                    }
+                });
+                
+                if (lcpTime > 0) {
+                    updateMetric('lcp-value', lcpTime, 'paint');
+                    
+                    if (!chartData.labels.includes('LCP')) {
+                        chartData.labels.push('LCP');
+                        chartData.timing.push(lcpTime);
+                    }
+                    observer.disconnect();
+                    
+                    const dclTime = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
+                    updateMetric('dcl-value', dclTime, 'dcl');
+                    
+                    if (!chartData.labels.includes('DCL')) {
+                        chartData.labels.push('DCL');
+                        chartData.timing.push(dclTime);
+                    }
+                    
+                    drawChart();
+                }
+            });
+
+            observer.observe({ type: 'paint', buffered: true });
+            observer.observe({ type: 'largest-contentful-paint', buffered: true });
+        }
+
+
+        // --- 2. Measure INP (Interaction Latency) ---
+        function measureInteractionMetrics() {
+            let maxInp = 0;
+
+            const observer = new PerformanceObserver((list) => {
+                list.getEntries().forEach(entry => {
+                    const interactionTime = entry.duration;
+                    if (interactionTime > maxInp) {
+                        maxInp = interactionTime;
+                        updateMetric('inp-value', maxInp, 'inp');
+                    }
+                });
+            });
+
+            observer.observe({
+                type: 'event',
+                buffered: true,
+                durationThreshold: 40 
+            });
+        }
+
+        // --- 3. Measure FPS (Frames Per Second) ---
+        function measureFPS() {
+            const times = [];
+            
+            function refreshLoop() {
+                window.requestAnimationFrame(() => {
+                    const now = performance.now();
+                    
+                    while (times.length > 0 && times[0] <= now - 1000) {
+                        times.shift();
+                    }
+                    
+                    times.push(now);
+                    const fps = times.length;
+                    
+                    updateMetric('fps-value', fps, 'fps');
+
+                    refreshLoop(); 
+                });
+            }
+            refreshLoop(); 
+        }
+        
+        // --- 4. Measure Ping (Network Latency) ---
+        function measurePing() {
+            const url = window.location.href.split('?')[0] + '?t=' + Date.now();
+            const startTime = performance.now();
+
+            fetch(url, { method: 'HEAD', cache: 'no-store' })
+                .then(response => {
+                    const endTime = performance.now();
+                    const pingTime = endTime - startTime;
+                    updateMetric('ping-value', pingTime, 'ping');
+                })
+                .catch(error => {
+                    document.getElementById('ping-value').textContent = 'Error';
+                    document.getElementById('ping-value').className = 'poor';
+                });
+            
+            setTimeout(measurePing, 5000); 
+        }
+
+        // --- 5. Functionality Checks ---
+
+        // Local Storage Test
+        function runLocalStorageTest() {
+            const statusElement = document.getElementById('local-storage-status');
+            const testKey = '__test_key__';
+            const testValue = 'success';
+
+            try {
+                localStorage.setItem(testKey, testValue);
+                const retrievedValue = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+
+                if (retrievedValue === testValue) {
+                    updateMetric('local-storage-status', 'PASS', 'passfail');
+                } else {
+                    updateMetric('local-storage-status', 'FAIL (Read/Write Mismatch)', 'passfail');
+                }
+            } catch (e) {
+                updateMetric('local-storage-status', `FAIL (Error: ${e.name})`, 'passfail');
+            }
+        }
+        
+        // WebAssembly Support Test
+        function runWasmSupportTest() {
+            const statusElement = document.getElementById('wasm-support-status');
+            
+            if (typeof WebAssembly !== 'object' || WebAssembly === null) {
+                updateMetric('wasm-support-status', 'FAIL (API Missing)', 'passfail');
+                return;
+            }
+
+            try {
+                const module = new WebAssembly.Module(new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+                if (module instanceof WebAssembly.Module) {
+                    updateMetric('wasm-support-status', 'PASS', 'passfail');
+                } else {
+                    updateMetric('wasm-support-status', 'FAIL (Module Compile)', 'passfail');
+                }
+            } catch (e) {
+                updateMetric('wasm-support-status', `FAIL (Exception)`, 'passfail');
+            }
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            chartData.labels.push('INP');
+            chartData.timing.push(0); 
+
+            measurePaintAndLoadMetrics();
+            measureInteractionMetrics();
+            measureFPS(); 
+            measurePing(); 
+            
+            runLocalStorageTest();
+            runWasmSupportTest();
+        });
+    </script>
+</body>
+</html>
