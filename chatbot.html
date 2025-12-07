@@ -434,6 +434,7 @@
         </div>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
         // 🛑 🛑 🛑 WARNING: This method exposes your key via network inspection! 🛑 🛑 🛑
@@ -911,12 +912,10 @@ function addMessage(role, content, targetElement = chatBox) {
             const safeRole = (role === 'user' || role === 'ai') ? role : 'ai';
             
             msgDiv.className = `message ${safeRole}-message`;
-            
+            const contentToParse = content && typeof content === 'string' ? content : '...';
             // Sanitize content and convert new lines to <br> tags
-            const safeContent = (content || '...').replace(/\n/g, '<br>');
-            
-            msgDiv.innerHTML = safeContent;
-            
+const renderedHtml = marked.parse(contentToParse);            
+msgDiv.innerHTML = renderedHtml;            
             targetElement.appendChild(msgDiv);
             scrollToBottom();
             
