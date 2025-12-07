@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google</title>
-    <style>
+<style>
         /* --- Neumorphic Base Color and Variables --- */
         :root {
             --neumorphic-bg: #e0e5ec;
@@ -43,7 +43,7 @@
             height: 100%;
         }
 
-        /* --- Start Page Styles (omitted for brevity) --- */
+        /* --- Start Page Styles --- */
         .start-page {
             display: none; 
             position: fixed;
@@ -75,7 +75,7 @@
             margin-bottom: 20px;
         }
 
-        /* --- Model Selector Buttons on Start Page (omitted for brevity) --- */
+        /* --- Model Selector Buttons on Start Page --- */
         .model-selector-container {
             margin-top: 30px;
             display: flex;
@@ -106,7 +106,7 @@
              color: var(--main-color);
         }
         
-        /* --- Sidebar & Chat List Styles (omitted for brevity) --- */
+        /* --- Sidebar & Chat List Styles --- */
         .sidebar {
             width: 280px; background-color: var(--neumorphic-bg); display: flex; flex-direction: column; padding: 15px; box-shadow: var(--outer-shadow-embossed); flex-shrink: 0; 
         }
@@ -120,13 +120,13 @@
         .chat-header { display: flex; align-items: center; justify-content: center; padding: 15px 20px; background-color: var(--neumorphic-bg); color: #333; box-shadow: var(--inner-shadow-recessed); flex-shrink: 0; }
         .chat-box { position: relative; background-color: var(--neumorphic-bg); box-shadow: var(--inner-shadow-recessed); flex-grow: 1; overflow-y: auto; padding: 20px; }
         
-        /* --- Message Bubbles (omitted for brevity) --- */
+        /* --- Message Bubbles --- */
         .message { margin-bottom: 15px; padding: 10px 15px; border-radius: 18px; line-height: 1.5; max-width: 85%; word-wrap: break-word; }
         .user-message { background-color: var(--main-color); color: white; margin-left: auto; border-bottom-right-radius: 4px; box-shadow: 2px 2px 4px #0056b3, -2px -2px 4px #009bff; }
         .ai-message { background-color: var(--neumorphic-bg); color: #333; margin-right: auto; border-bottom-left-radius: 4px; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
         .welcome-prompt { color: var(--shadow-dark); }
 
-        /* --- Input Area (omitted for brevity) --- */
+        /* --- Input Area and Bottom Dropdown --- */
         .input-area { 
             display: flex; 
             padding: 15px; 
@@ -140,6 +140,7 @@
         .input-and-select-row {
             display: flex;
             width: 100%;
+            align-items: flex-start; /* Align items to the top to accommodate growing textarea */
         }
 
         .model-select-container {
@@ -166,18 +167,59 @@
             color: #444;
             cursor: pointer;
             appearance: none; 
+            transition: all 0.2s;
         }
         
         .model-select:focus {
             outline: none;
             box-shadow: var(--inner-shadow-recessed), 0 0 0 2px var(--main-color);
         }
+        
+        /* Style for the TEXTAREA element */
+        .input-and-select-row textarea { 
+            flex-grow: 1; 
+            padding: 12px 18px; 
+            border: none; 
+            border-radius: 25px; /* Neumorphic rounded corners */
+            margin-right: 10px; 
+            font-size: 1em; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Keep consistent font */
+            background-color: var(--neumorphic-bg); 
+            box-shadow: var(--inner-shadow-recessed); 
+            resize: none; /* Disable manual resizing by user */
+            min-height: 25px; /* Ensure it's not too small */
+            max-height: 150px; /* Optional: Prevent it from filling the entire screen */
+            overflow-y: auto; /* Show scrollbar if max-height is reached */
+            color: #333;
+            line-height: 1.4;
+            transition: all 0.2s;
+        }
+        
+        .input-and-select-row textarea:focus {
+            outline: none;
+            box-shadow: var(--inner-shadow-recessed), 0 0 0 1px var(--main-color);
+        }
 
-        .input-area input { flex-grow: 1; padding: 12px 18px; border: none; border-radius: 25px; margin-right: 10px; font-size: 1em; background-color: var(--neumorphic-bg); box-shadow: var(--inner-shadow-recessed); }
-        .input-area button { background-color: var(--secondary-color); box-shadow: 4px 4px 8px #1e7e34, -4px -4px 8px #32c858; padding: 10px 20px; border: none; border-radius: 25px; }
-        .input-area button:active:not(:disabled) { box-shadow: inset 4px 4px 8px #1e7e34, inset -4px -4px 8px #32c858; transform: scale(0.98); }
+        .input-and-select-row textarea:disabled {
+             opacity: 0.7;
+             cursor: not-allowed;
+             box-shadow: inset 2px 2px 4px var(--shadow-dark); /* Visually flatter when disabled */
+        }
 
-        /* --- Custom Context Menu Styles (omitted for brevity) --- */
+        .input-area button { 
+            background-color: var(--secondary-color); 
+            box-shadow: 4px 4px 8px #1e7e34, -4px -4px 8px #32c858; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 25px; 
+            align-self: flex-start; /* Ensure button is vertically aligned with top of textarea */
+        }
+        .input-area button:active:not(:disabled) { 
+            box-shadow: inset 4px 4px 8px #1e7e34, inset -4px -4px 8px #32c858; 
+            transform: scale(0.98); 
+        }
+
+        /* --- Custom Context Menu Styles --- */
         #context-menu {
             position: absolute;
             background-color: var(--neumorphic-bg);
@@ -216,7 +258,7 @@
 
         @media (max-width: 768px) { .sidebar { display: none; } }
         
-        /* --- 🚨 NEW MODAL STYLES 🚨 --- */
+        /* --- MODAL STYLES --- */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -356,8 +398,7 @@
                 </div>
 
                 <div class="input-and-select-row">
-                    <input type="text" id="user-input" placeholder="Type your message..." autofocus disabled>
-                    <button onclick="sendMessage()" id="send-button" disabled>Send</button>
+<textarea id="user-input" class="user-input" placeholder="Ask a question..." rows="1"></textarea>                    <button onclick="sendMessage()" id="send-button" disabled>Send</button>
                 </div>
             </div>
         </div>
@@ -1006,10 +1047,18 @@ async function sendMessage() {
                 userInput.focus();
             }
         }
-        // Allow sending message by pressing Enter
+// Allow sending message by pressing Enter (without Shift) and a new line with Shift + Enter
         userInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !sendButton.disabled) {
-                sendMessage();
+            // Check if the Enter key was pressed
+            if (event.key === 'Enter') {
+                // If the Shift key is NOT pressed, and the send button is not disabled:
+                if (!event.shiftKey && !sendButton.disabled) {
+                    event.preventDefault(); // Prevent the default action (which is usually a new line)
+                    sendMessage();
+                } 
+                // If Shift IS pressed, we do nothing, allowing the default browser behavior 
+                // which is to insert a new line (a crucial detail for textarea but works fine for text input too)
+                // If you later switch to a <textarea>, the behavior is natural.
             }
         });
     </script>
