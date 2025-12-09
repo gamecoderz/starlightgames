@@ -169,7 +169,6 @@
 .modal-content > div:nth-child(1) button { 
     background: transparent;
     border: none;
-    cursor: pointer;
     line-height: 1; 
     padding: 4px;
     border-radius: 50%;
@@ -219,7 +218,6 @@
     padding: 10px 20px;
     border-radius: var(--border-radius);
     font-weight: 600;
-    cursor: pointer;
     border: 1px solid var(--primary-dark);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -408,9 +406,25 @@
                   color: var(--text-color);
                   margin: 0;
                   padding: 0;
+                              /* --- 1. Apply Custom Cursor to the ENTIRE Page (Default) --- */
+            cursor: url('https://raw.githubusercontent.com/BeckBusch/Custom-Rainbow-Cursor-Extension/refs/heads/master/Pictures/cursors/arrows/light-darkblue.png'), default; /* Placeholder: Green Pointer */
+
                   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
               }
 
+
+        
+        /* --- 3. Apply a DIFFERENT Custom Cursor to ALL Buttons on Hover (NEW RULE) --- */
+                button:hover,
+        input[type="submit"]:hover,
+        input[type="button"]:hover,
+        input[type="text"]:hover,
+                input[type="url"]:hover,
+
+        select:hover,
+        label:hover  {
+            cursor: url('https://raw.githubusercontent.com/BeckBusch/Custom-Rainbow-Cursor-Extension/refs/heads/master/Pictures/cursors/pointers/light-darkblue.png'), pointer; /* Placeholder: Blue Button Hand */
+        }
               /* --- Main Menu (Modified to hold all sections and be padded for the new tab bar) --- */
               #main-menu {
                   height: 100vh;
@@ -600,7 +614,6 @@
                   color: var(--text-color);
                   background-color: var(--secondary-bg);
                   border: none;
-                  cursor: pointer;
                   transition: all 0.25s ease-in-out;
                   box-shadow: var(--shadow-light-bottom), var(--shadow-light-top);
                   font-weight: 500;
@@ -701,7 +714,6 @@
                   border-radius: var(--border-radius);
                   color: var(--text-color);
                   border: 1px solid rgba(255, 255, 255, 0.3);
-                  cursor: pointer;
                   transition: all 0.2s ease-in-out;
                   padding: 0 10px;
                   box-sizing: border-box;
@@ -850,7 +862,6 @@
           color: var(--text-color);
           background-color: var(--secondary-bg);
           border: none;
-          cursor: pointer;
           transition: all 0.25s ease-in-out;
           box-shadow: var(--shadow-light-bottom), var(--shadow-light-top);
 
