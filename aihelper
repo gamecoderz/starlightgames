@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight Navigation Chatbot</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        #chat-container { background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 15px; }
+        #chat-log { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px; background-color: #e9e9f1; }
+        .message { margin-bottom: 10px; padding: 8px; border-radius: 5px; }
+        .user-message { text-align: right; background-color: #dcf8c6; }
+        .bot-message { text-align: left; background-color: #ffffff; border: 1px solid #ddd; }
+        /* Style adjustments for Markdown output */
+        .bot-message p { margin: 0; }
+        .bot-message ul, .bot-message ol { padding-left: 20px; margin-top: 5px; margin-bottom: 5px; }
+
+        #user-input { display: flex; }
+        #user-message { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px 0 0 4px; }
+        #send-button { padding: 10px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 0 4px 4px 0; cursor: pointer; }
+        #send-button:hover:not(:disabled) { background-color: #45a049; }
+        #send-button:disabled { background-color: #999; cursor: not-allowed; }
+        .disclaimer { margin-top: 20px; font-size: 0.8em; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <h2>Starlight Navigation & Service Assistant</h2>
+    <div id="chat-container">
+        <div id="chat-log">
+            <div class="message bot-message">Hello! I'm here to help you navigate Starlight features. Ask me about <strong>Home, Games, Utilities,</strong> or <strong>Settings!</strong></div>
+        </div>
+        <div id="user-input">
+            <input type="text" id="user-message" placeholder="Type your message..." />
+            <button id="send-button">Send</button>
+        </div>
+        <p class="disclaimer">This example uses a client-side fetch, which is for educational purposes. For a production environment, always route API calls through a secure backend server to protect your key.</p>
+    </div>
+
+    <script>
+        // *** IMPORTANT: REPLACE THIS WITH YOUR ACTUAL GROQ API KEY ***
+        const GROQ_API_KEY = "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"; 
+
+        // Groq API Endpoint
+        const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+        
+        // Model to use
+        const GROQ_MODEL = "openai/gpt-oss-20b"; 
+
+        // Knowledge Base for the System Prompt
+        const KNOWLEDGE_BASE = `
+            You are a helpful assistant for the Starlight platform. Your goal is to guide users through the platform's navigation and services based *only* on the following information. Use Markdown formatting (like **bolding** or *lists*) in your response to make it clear.
+
+            Home Tab: Takes you to the main page, providing an overview of available games, services, or features.
+            Games Tab: Displays a list of available games, game categories, or a game launcher.
+            Utilities Tab: Provides access to tools like: chat with the community, owners playlist, computer diagnostics, and a view full terms button.
+            Chatbots Tab: Offers interaction with AI-powered chatbots for support, assistance, accessing information, or entertainment.
+            Settings Tab: Allows configuring account/platform preferences.
+            Settings > Page Settings: Customizes the page appearance (e.g., Cloak Type, Background Pattern).
+            Settings > Tab Cloaker Presets: Options include Clever | Portal, StarlightGG (Default), Khan Academy, Outlook Mail, Calculator, Activate Learning, Gallopade, IL Classroom, Zearn, iCivics, Pear Assessment, Google Drive, or Google Docs.
+            
+            LIABILITY WAIVER: If the user asks about liability, terms, or the creator/owner's responsibility, use this exact statement: "LIABILITY WAIVER: You agree that the creator/owner of Starlight Games assumes NO LIABILITY for your actions. You agree to hold the owner harmless from any claims, damages, or legal/disciplinary actions resulting from your use of the Service."
+            
+            Do not provide information outside of this knowledge base. Keep your answers concise and directly relevant to the user's question.
+        `;
+
+        const chatLog = document.getElementById('chat-log');
+        const userMessageInput = document.getElementById('user-message');
+        const sendButton = document.getElementById('send-button');
+
+        // Store conversation history for context
+        let conversationHistory = [{ role: "system", content: KNOWLEDGE_BASE }];
+
+        sendButton.addEventListener('click', sendMessage);
+        userMessageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const userMessageText = userMessageInput.value.trim();
+            if (!userMessageText) return;
+
+            // 1. Display User Message
+            appendMessage(userMessageText, 'user-message', false); // User message is not Markdown
+            userMessageInput.value = '';
+            sendButton.disabled = true;
+
+            // 2. Add User Message to History
+            conversationHistory.push({ role: "user", content: userMessageText });
+
+            // 3. Prepare API Request
+            try {
+                const response = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: GROQ_MODEL,
+                        messages: conversationHistory, // Send the full history
+                        temperature: 0.7 
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Groq API Error: ${response.status} - ${errorData.error.message || response.statusText}`);
+                }
+
+                const data = await response.json();
+                const botResponseText = data.choices[0].message.content;
+
+                // 4. Display Bot Message (Processed as Markdown)
+                appendMessage(botResponseText, 'bot-message', true);
+
+                // 5. Add Bot Message to History
+                conversationHistory.push({ role: "assistant", content: botResponseText });
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                appendMessage(`[ERROR] Failed to get response: ${error.message}. Please check your API key and browser console.`, 'bot-message', false);
+                // Remove the last user message from history if the API call failed
+                conversationHistory.pop(); 
+            } finally {
+                sendButton.disabled = false;
+            }
+        }
+
+        /**
+         * Appends a message to the chat log, optionally processing it as Markdown.
+         * @param {string} text - The message text.
+         * @param {string} className - The CSS class for the message (e.g., 'user-message', 'bot-message').
+         * @param {boolean} isMarkdown - If true, process text using marked.min.js.
+         */
+        function appendMessage(text, className, isMarkdown) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            
+            if (isMarkdown && typeof marked !== 'undefined') {
+                // Use marked.js to convert Markdown to HTML
+                messageDiv.innerHTML = marked.parse(text); 
+            } else {
+                // For user messages or when Marked.js isn't available, use plain text/simple breaks
+                messageDiv.textContent = text;
+            }
+            
+            chatLog.appendChild(messageDiv);
+            // Scroll to the latest message
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+    </script>
+
+</body>
+</html>
