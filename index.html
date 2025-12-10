@@ -2374,19 +2374,42 @@ document.addEventListener('DOMContentLoaded', () => {
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.1.2.min.js"></script> 
 
     <script type="text/javascript">
-        // 🚨 IMPORTANT: REPLACE THESE WITH YOUR OWN KEYS FROM STEP 1 🚨
-        const YOUR_PUB_KEY = 'pub-c-4f63101b-920b-4b8e-a733-88a65d0ba4a0'; 
-        const YOUR_SUB_KEY = 'sub-c-f4059211-b1e0-453b-b4e1-0e103b63253d'; 
+// 🚨 IMPORTANT: REPLACE THESE WITH YOUR OWN KEYS 🚨
+const YOUR_PUB_KEY = 'pub-c-4f63101b-920b-4b8e-a733-88a65d0ba4a0';
+const YOUR_SUB_KEY = 'sub-c-f4059211-b1e0-453b-b4e1-0e103b63253d';
 
-        // Generates a unique ID for each visitor
-        const randomString = () => Math.random().toString(36).slice(2);
+// Generates a unique ID for each visitor
+const randomString = () => Math.random().toString(36).slice(2);
 
-        // Initialize PubNub
-        const pubnub = new PubNub({
-            publishKey: YOUR_PUB_KEY,
-            subscribeKey: YOUR_SUB_KEY,
-            uuid: randomString() // Assigns a unique ID to this browser session
-        });
+// Initialize PubNub
+const pubnub = new PubNub({
+    publishKey: YOUR_PUB_KEY,
+    subscribeKey: YOUR_SUB_KEY,
+    uuid: randomString(), // Assigns a unique ID to this browser session
+
+    // 💡 ENHANCEMENT 1: RELIABLE CONNECTION MANAGEMENT
+    // Tells the SDK to try and send an unsubscribe signal when the page unloads.
+    pageUnload: true,
+
+    // 💡 ENHANCEMENT 2: HEARTBEAT FOR PRESENCE (Highly Recommended)
+    // Sends a tiny signal every 20 seconds to confirm the client is active.
+    // If the signal stops (e.g., tab crash), PubNub will mark the client as gone.
+    heartbeatInterval: 20
+    
+});
+
+// ✅ Next Step: Add a listener for connection status and incoming messages
+pubnub.addListener({
+    status: (statusEvent) => {
+        if (statusEvent.category === 'PNConnectedCategory') {
+            console.log("PubNub client connected successfully!");
+        }
+    },
+    message: (messageEvent) => {
+        console.log("New message:", messageEvent.message);
+    }
+});
+
 
         // The name of the channel (your page) we are tracking presence on
         const CHANNEL_NAME = 'counter'; 
@@ -2427,25 +2450,26 @@ document.addEventListener('DOMContentLoaded', () => {
         pubnub.subscribe({
             channels: [CHANNEL_NAME],
             withPresence: true // This is crucial for tracking online/offline status
+
         });
         
         // 4. On page load, get the current count immediately (optional but good practice)
         pubnub.hereNow({
+            channels: [CHANNEL_NAME]
+        }, function (status, response) {
+            if (response && response.channels && response.channels[CHANNEL_NAME]) {
+                const initialCount = response.channels[CHANNEL_NAME].occupancy;
+                const counterElement = document.getElementById('online-users-count');
+                 if (counterElement) {
+                    counterElement.innerHTML = initialCount > 0 ? initialCount : 1;
                 }
             }
         });
-// 6. 🚨 NEW: Attempt to unsubscribe when the user closes the tab/window 🚨
-// This is done to send a "leave" signal, but it is NOT 100% reliable.
-window.addEventListener('beforeunload', function () {
-    // Attempt an immediate unsubscribe
-    pubnub.unsubscribe({
-        channels: [CHANNEL_NAME]
-    });
-    // Use the timeout setting (from Step 1) as the reliable fallback
-});
+
 setInterval(checkOccupancy, 1000); // 1000 milliseconds = 1 second
 
     </script>
+
 
   </body>
 </html> 
