@@ -182,6 +182,11 @@
             // Scroll to the latest message
             chatLog.scrollTop = chatLog.scrollHeight;
         }
+              // Function for custom inputs (no changes needed)
+      function applyCustomCloak(customTitle, faviconURL) {
+          if (customTitle) {
+              document.title = customTitle;
+          }
           if (faviconURL) {
               let faviconEl = document.getElementById("dynamic-favicon");
               if (!faviconEl) {
