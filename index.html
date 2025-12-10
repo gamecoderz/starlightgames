@@ -2425,7 +2425,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
+// 6. 🚨 NEW: Attempt to unsubscribe when the user closes the tab/window 🚨
+// This is done to send a "leave" signal, but it is NOT 100% reliable.
+window.addEventListener('beforeunload', function () {
+    // Attempt an immediate unsubscribe
+    pubnub.unsubscribe({
+        channels: [CHANNEL_NAME]
+    });
+    // Use the timeout setting (from Step 1) as the reliable fallback
+});
     </script>
   </body>
 </html> 
