@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google</title>
+    <!--<script id="cloning-script" src="cloner.js"></script> -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 1. Define the CSS Variable for the Font Stack */
+        :root {
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        /* 2. Reset the default browser margins and padding, and apply the font */
+        body, html {
+            /* Full viewport size for the entire page */
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            
+            /* Apply the desired font stack */
+            font-family: var(--font-stack);
+            
+            /* Hide scrolling if the widget takes up exactly 100% of the viewport */
+            overflow: hidden; 
+        }
+
+        /* 3. Style the Elfsight container to take up the full window */
+        .elfsight-app-1d35e180-0026-4485-9cdd-d663f6e4088a {
+            /* Use viewport units (vw/vh) for exact screen size */
+            width: 100vw;
+            height: 100vh;
+            
+            /* Ensure it sits at the top-left corner */
+            position: absolute; 
+            top: 0;
+            left: 0;
+            
+            /* Optional: Add a subtle background color if the player doesn't fill the space perfectly */
+            /* background-color: #f0f0f0; */
+        }
+    </style>
+</head>
+<body>
+
+<script src="https://elfsightcdn.com/platform.js" async></script>
+<div class="elfsight-app-73b72e12-0ddc-499c-a63e-c212c3e84979" data-elfsight-app-lazy></div>
+</body>
+
+</html>
