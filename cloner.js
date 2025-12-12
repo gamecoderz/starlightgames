@@ -2,7 +2,20 @@
 
 // The core logic function, now named for clarity
 function executeCloningLogic() {
+    // A unique key to store in localStorage
+const localStorageKey4 = 'tipadvisoryShown_v2_2_0'; 
+
+// Check if the advisory has already been shown
+if (localStorage.getItem(localStorageKey4) === null) {
     
+    // The advisory has NOT been shown, so proceed to display the modals
+        alert("If studentkeeper is blocking this webpage, turn off your internet, then paste back the link, it should say studentkeeper blocked it, if so, turn on internet and enter link again then you bypassed the blocker!");
+        // After showing all the modals, set the flag in localStorage
+        // This prevents the modals from showing again on subsequent visits
+        localStorage.setItem(localStorageKey4, 'true');
+        
+}
+
     // Check if the current URL is NOT about:blank
     if (window.location.href !== 'about:blank') {
 
