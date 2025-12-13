@@ -148,9 +148,9 @@ setTimeout(() => {
             }
             if (event.key === ' ') {
           if(tabProtectionEnabled){
-            tabProtectionEnabled = false
+            tabProtectionEnabled = false;
           }
-          window.location.replace("https://google.com/")
+          window.location.replace("https://google.com/");
                 event.preventDefault();
             }
         }
