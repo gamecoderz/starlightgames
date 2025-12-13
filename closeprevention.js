@@ -1,3 +1,4 @@
+ setTimeout(() => {
 // === JAVASCRIPT LOGIC ===
 
 // Key for localStorage
@@ -82,3 +83,4 @@ tabProtectionEnabled = savedState === 'true';
 
 // 2. CRITICAL: Call updateUI() to reflect the saved state on load
 updateUI();
+      },800);
