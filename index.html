@@ -1929,7 +1929,7 @@ function applyStoredCloak() {
 
     // 2. Pass the retrieved data to the function that performs the action
     // applyCustomCloak handles checking if storedTitle/storedFavicon are null/empty.
-    applyCustomCloak(storedTitle, storedFavicon);
+      applyCustomCloak(storedTitle, storedFavicon);
 }
 // 🔑 Call the function to apply the stored cloak when the page loads
 
@@ -2109,11 +2109,10 @@ const localStorageKey = 'advisoryShown_v2_2_0';
           setTimeout(hideLoadingScreen, 500);
 
       });
-      window.addEventListener('load', () => {
-          // Hide the loading screen after a small delay
-setTimeout(()=>{document.addEventListener('DOMContentLoaded', applyStoredCloak);}, 600)
-
-      });
+window.addEventListener('DOMContentLoaded', () => {
+    // Call the function directly when the basic HTML structure is ready
+    applyStoredCloak();
+});
 
         // Get references to the modal elements
         const modal = document.getElementById('custom-modal');
