@@ -1896,19 +1896,19 @@ document.getElementById('url-cloak-input').value = ""; // Assuming this is your 
 /**
  * Applies custom page title and favicon URL,
  * and saves them to Local Storage for persistence.
- * * @param {string} customTitle - The new document title.
+ * @param {string} customTitle - The new document title.
  * @param {string} faviconURL - The URL for the new favicon.
  */
 function applyCustomCloak(customTitle, faviconURL) {
     if (customTitle) {
         document.title = customTitle;
-        // 🔑 Store the title in Local Storage
-        localStorage.setItem(storedTitle, customTitle);
+        // 🔑 FIXED: Use the constant TITLE_KEY for saving
+        localStorage.setItem(TITLE_KEY, customTitle);
     }
     
     if (faviconURL) {
-        // 🔑 Store the favicon URL in Local Storage
-        localStorage.setItem(storedFavicon, faviconURL);
+        // 🔑 FIXED: Use the constant FAVICON_KEY for saving
+        localStorage.setItem(FAVICON_KEY, faviconURL);
         
         let faviconEl = document.getElementById("dynamic-favicon");
         if (!faviconEl) {
@@ -1921,16 +1921,22 @@ function applyCustomCloak(customTitle, faviconURL) {
     }
 }
 
+/**
+ * Retrieves saved title and favicon from Local Storage and applies them.
+ */
 function applyStoredCloak() {
-    // 1. Define the variables and retrieve the stored data
-    // (TITLE_KEY and FAVICON_KEY must be defined outside this function as constants)
+    // 1. Retrieve the stored data using the correct constants
     const storedTitle = localStorage.getItem(TITLE_KEY);
     const storedFavicon = localStorage.getItem(FAVICON_KEY);
 
-    // 2. Pass the retrieved data to the function that performs the action
+    // 2. Apply the retrieved data
     // applyCustomCloak handles checking if storedTitle/storedFavicon are null/empty.
-      applyCustomCloak(storedTitle, storedFavicon);
+    applyCustomCloak(storedTitle, storedFavicon);
 }
+// 🔑 Call the function to apply the stored cloak when the page loads
+window.addEventListener('DOMContentLoaded', () => {
+    applyStoredCloak();
+});
 // 🔑 Call the function to apply the stored cloak when the page loads
 
 // NEW/CORRECTED Helper Function: Uses Google's Favicon Service (Safe & Reliable)
