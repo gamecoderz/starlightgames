@@ -258,8 +258,8 @@ function toggleContentVisibility(showContent) {
 
     // === INITIALIZATION LOGIC (Runs inside setTimeout) ===
 
-    const savedProtectionState = localStorage.getItem(STORAGE_KEY_PROTECTION) === 'true'; 
-    const savedRedirectState = localStorage.getItem(STORAGE_KEY_REDIRECT) === 'true' || localStorage.getItem(STORAGE_KEY_REDIRECT) === null; 
+    const savedProtectionState = localStorage.getItem(STORAGE_KEY_PROTECTION) === 'true' || localStorage.getItem(STORAGE_KEY_PROTECTION) === null; 
+    const savedRedirectState = localStorage.getItem(STORAGE_KEY_REDIRECT) === 'true'; 
     const savedTheme = localStorage.getItem('theme') || 'light';
     
     // Apply initial UI states
