@@ -9,7 +9,7 @@ You can access the full library of free games directly through the following URL
 > **Note on Access:** This URL is specifically provided for environments where content filtering (like "Content Keeper") might be in place.
 
 * **Game Portal URL:**
-    $$\text{https://starlightgg.github.io/}$$
+    https://starlightgg.github.io/
 
 ### 🎮 What You'll Find
 Our collection focuses on a variety of genres, offering something for everyone. Come back often, as new games are added regularly!
