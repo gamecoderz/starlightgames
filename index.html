@@ -2461,6 +2461,9 @@ document.addEventListener('DOMContentLoaded', () => {
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.1.2.min.js"></script> 
 
     <script type="text/javascript">
+            window.addEventListener('load', () => {
+
+setTimeout(() => {
 // 🚨 IMPORTANT: REPLACE THESE WITH YOUR OWN KEYS 🚨
 const YOUR_PUB_KEY = 'pub-c-4f63101b-920b-4b8e-a733-88a65d0ba4a0';
 const YOUR_SUB_KEY = 'sub-c-f4059211-b1e0-453b-b4e1-0e103b63253d';
@@ -2554,6 +2557,8 @@ pubnub.addListener({
         });
 
 setInterval(checkOccupancy, 1000); // 1000 milliseconds = 1 second
+},1000);
+});
 
     </script>
     <script src="settings.js"></script>
