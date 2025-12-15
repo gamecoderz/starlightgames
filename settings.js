@@ -133,6 +133,11 @@ setTimeout(() => {
     // === UI UPDATE FUNCTIONS ===
     
     function updateProtectionUI(isEnabled) { 
+            // FIX: If protection is logically enabled (default), explicitly set it to 'true' in storage.
+    // This ensures the 'beforeunload' listener sees the required 'true' value immediately on first load.
+    if (savedProtectionState) {
+        localStorage.setItem(STORAGE_KEY_PROTECTION, 'true');
+    }
         if (isEnabled) {
             const closepreventionwarning = 'closepreventionwarning'; 
             if (localStorage.getItem(closepreventionwarning) === null) {
@@ -321,11 +326,7 @@ setTimeout(() => {
     const savedOverlayState = localStorage.getItem(STORAGE_KEY_OVERLAY) !== 'false'; // NEW: Default ON
     const savedTheme = localStorage.getItem('theme') || 'light';
     const savedStatsState = localStorage.getItem(STORAGE_KEY_STATS) === 'true'; 
-    // FIX: If protection is logically enabled (default), explicitly set it to 'true' in storage.
-    // This ensures the 'beforeunload' listener sees the required 'true' value immediately on first load.
-    if (savedProtectionState) {
-        localStorage.setItem(STORAGE_KEY_PROTECTION, 'true');
-    }
+
     // Apply initial UI states
     updateProtectionUI(savedProtectionState);
     updateRedirectUI(savedRedirectState);
