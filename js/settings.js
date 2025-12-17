@@ -388,7 +388,10 @@ setTimeout(() => {
     updateAboutBlankUI(savedAboutBlankState);
     applyThemeUI(savedTheme);
     updateStatsUI(savedStatsState);
+    if (savedAboutBlankState == 'null'){
+                        localStorage.setItem('aboutBlankPopupState', 'true');
 
+    }
     // Initial check for Overlay option visibility
     if (overlayOptionContainer) {
         overlayOptionContainer.style.display = savedRedirectState ? 'none' : 'flex';
