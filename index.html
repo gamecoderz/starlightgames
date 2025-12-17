@@ -1376,9 +1376,16 @@ width: 80%;
                   placeholder="Enter favicon URL (e.g., https://google.com/favicon.ico)"
                 />
               </div>
-
+              <div class="settings-item">
+                <label for="custom-link-input">Custom Redirect link:</label>
+                <input
+                  type="text"
+                  id="custom-link-input"
+                  placeholder="Enter redirect URL (e.g., https://google.com/)"
+                />
+              </div>
               <div class="menu-buttons" style="margin-top: 25px;">
-                <button onclick="runCustomCloak();         localStorage.setItem('LINKTAB_KEY', 'https://google.com');">Apply Custom Cloak</button>
+                <button onclick="runCustomCloak();">Apply Custom Cloak</button>
               </div>
 
           </div>
@@ -1791,12 +1798,19 @@ hideiframe();
       function runCustomCloak() {
           const title = document.getElementById('custom-title-input').value;
           const url = document.getElementById('custom-favicon-input').value;
+          const redirect = document.getElementById('custom-url-input').value;
 
           if (!title && !url) {
               showModal("Please enter a title or favicon URL!");
               return;
           }
+            if (redirect) {
+                      localStorage.setItem('LINKTAB_KEY', redirect);
 
+            } else {
+        localStorage.setItem('LINKTAB_KEY', 'https://google.com/');
+
+            }
           applyCustomCloak(title, url);
 
           // Keep the preset dropdown on "Custom"
@@ -1972,6 +1986,7 @@ faviconEl.href = faviconURL;
 document.getElementById('custom-title-input').value = "";
 document.getElementById('custom-favicon-input').value = "";
 document.getElementById('url-cloak-input').value = "";
+document.getElementById('custom-url-input').value = "";
 
 // Store values
 localStorage.setItem(TITLE_KEY, selected);
