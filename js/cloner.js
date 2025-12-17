@@ -71,6 +71,7 @@ if (localStorage.getItem(localStorageKey4) === null) {
 }
 // --- New Delay Implementation ---
       window.addEventListener('load', () => {
+          const savedAboutBlankState = localStorage.getItem('aboutBlankPopupState');
         if (savedAboutBlankState == null){
                         localStorage.setItem('aboutBlankPopupState', 'true');
 
