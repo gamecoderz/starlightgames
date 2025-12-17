@@ -335,12 +335,12 @@ setTimeout(() => {
         const protEnabled = localStorage.getItem(STORAGE_KEY_PROTECTION) !== 'false';
         const redirEnabled = localStorage.getItem(STORAGE_KEY_REDIRECT) === 'true';
         const overlayEnabled = localStorage.getItem(STORAGE_KEY_OVERLAY) !== 'false';
-        const aboutBlankEnabled = localStorage.getItem(STORAGE_KEY_ABOUT_BLANK) === 'true'; 
+        const savedAboutBlankState = localStorage.getItem(STORAGE_KEY_ABOUT_BLANK) === 'false'; 
 
         updateProtectionUI(protEnabled);
         updateRedirectUI(redirEnabled);
         updateOverlayUI(overlayEnabled);
-        updateAboutBlankUI(aboutBlankEnabled); 
+        updateAboutBlankUI(savedAboutBlankState); 
 
         // Control the visibility of the Overlay option
         if (overlayOptionContainer) {
@@ -364,10 +364,9 @@ setTimeout(() => {
     const savedProtectionState = localStorage.getItem(STORAGE_KEY_PROTECTION) !== 'false'; 
     const savedRedirectState = localStorage.getItem(STORAGE_KEY_REDIRECT) === 'true'; 
     const savedOverlayState = localStorage.getItem(STORAGE_KEY_OVERLAY) !== 'false';
-    const savedAboutBlankState = localStorage.getItem(STORAGE_KEY_ABOUT_BLANK) === 'true'; 
+    const savedAboutBlankState = localStorage.getItem(STORAGE_KEY_ABOUT_BLANK) === 'false'; 
     const savedTheme = localStorage.getItem('theme') || 'light';
     const savedStatsState = localStorage.getItem(STORAGE_KEY_STATS) === 'true'; 
-const aboutBlankEnabled = localStorage.getItem(STORAGE_KEY_ABOUT_BLANK) !== 'false';
     // Apply initial UI states
     updateProtectionUI(savedProtectionState);
     updateRedirectUI(savedRedirectState);
