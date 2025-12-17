@@ -3,7 +3,7 @@
 // The core logic function, now named for clarity
 function executeCloningLogic() {
     // 1. Check if we should attempt cloning
-    if (window.location.href !== 'about:blank' && localStorage.getItem('aboutBlankPopupState')) {
+    if (window.location.href !== 'about:blank' && localStorage.getItem('aboutBlankPopupState')==true) {
 
         // Try to open the new 'about:blank' tab
         const newWindow = window.open('about:blank', '_blank');
