@@ -1826,13 +1826,15 @@ hideiframe();
           }
             if (redirect) {
                       localStorage.setItem('LINKTAB_KEY', redirect);
+              showModal(`Custom settings applied!\nTitle: ${title}\nRedirect URL: ${redirect}`);
+
 
             } else {
         localStorage.setItem('LINKTAB_KEY', 'https://google.com/');
+showModal(`Custom settings applied!\nTitle: ${title}\nRedirect URL: https://google.com/`);
 
             }
           applyCustomCloak(title, url);
-showModal(`Custom settings applied!\nTitle:${title}\nRedirect URL:${redirect}`);
           // Keep the preset dropdown on "Custom"
           document.getElementById('cloak-dropdown').value = "custom";
       }
